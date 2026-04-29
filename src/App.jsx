@@ -1,6 +1,26 @@
 import { useState, useEffect, useCallback } from "react"
 
 // ─── RESPONSIVE HOOK ─────────────────────────────────────────────────────────
+
+// ── Supabase helper ──────────────────────────────────────────
+const SUPA_URL = "https://dsoydsncwltjyvhakwvn.supabase.co"
+const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRzb3lkc25jd2x0anl2aGFrd3ZuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc0MTkzOTgsImV4cCI6MjA5Mjk5NTM5OH0.hIe-gbqhcJ_H0VHPbqxNhYPNMPLfy86ggky-mUqjQ1c"
+async function postDealToSupabase(row) {
+  try {
+    await fetch(SUPA_URL + "/rest/v1/buyer_deals", {
+      method: "POST",
+      headers: {
+        "apikey": SUPA_KEY,
+        "Authorization": "Bearer " + SUPA_KEY,
+        "Content-Type": "application/json",
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify(row)
+    })
+  } catch(e) { console.error("Supabase error:", e) }
+}
+// ─────────────────────────────────────────────────────────────
+
 function useWidth() {
   const [w, setW] = useState(window.innerWidth)
   useEffect(() => {
@@ -533,7 +553,24 @@ function LOIForm({d, user, onSubmit, existingLOI}) {
           onFocus={e=>{e.target.style.borderColor=C.blue;e.target.style.background=C.blueBg}}
           onBlur={e=>{e.target.style.borderColor=C.border;e.target.style.background=C.surface}}/>
       </div>
-      <button onClick={()=>{onSubmit({...form,dealId:d.id,dealName:d.name,ts:new Date().toISOString()});setDone(true)}}
+      <button onClick={()=>{onSubmit({...form,dealId:d.id,dealName:d.name,ts:new Date().toISOString()});setDone(true);
+      postDealToSupabase({
+        portal:"TillStreet",
+        listing_name:d.name,
+        listing_type:d.type,
+        buyer_name:user?.name||"",
+        buyer_email:user?.email||"",
+        buyer_phone:user?.phone||"",
+        buyer_entity:form.entity||"",
+        offer_price:form.offerPrice?Number(String(form.offerPrice).replace(/[^0-9.]/g,"")):null,
+        financing:form.financing,
+        structure:form.structure,
+        dd_period:form.ddPeriod,
+        conditions:form.conditions,
+        thesis:form.thesis,
+        broker_fee:form.offerPrice?Math.round(Number(String(form.offerPrice).replace(/[^0-9.]/g,""))*0.05):null,
+        status:"New"
+      })}}
         style={{width:"100%",background:C.blue,color:"#fff",border:"none",borderRadius:8,padding:"14px",fontFamily:"'Syne',sans-serif",fontSize:15,fontWeight:700,cursor:"pointer",letterSpacing:"0.04em",transition:"background 0.15s"}}
         onMouseEnter={e=>e.target.style.background=C.blueDk}
         onMouseLeave={e=>e.target.style.background=C.blue}>
