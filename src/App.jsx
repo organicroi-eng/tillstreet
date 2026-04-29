@@ -451,6 +451,23 @@ function FinancingPanel({d}) {
 }
 
 // ─── LOI FORM ────────────────────────────────────────────────────────────────
+function BrokerDisclosure({offerPrice}) {
+  const fee = offerPrice ? Math.round(Number(String(offerPrice).replace(/[^0-9]/g,"")) * 0.05) : null
+  return (
+    <div style={{background:`${C.blueBg}`,border:`1px solid ${C.blueBd}`,borderRadius:8,padding:"12px 14px",marginBottom:16}}>
+      <div style={{fontFamily:"'Outfit',sans-serif",fontSize:11,fontWeight:700,color:C.cyan,textTransform:"uppercase",letterSpacing:"0.1em",marginBottom:6}}>🏢 Represented by Veribas Real Estate LLC</div>
+      <div style={{fontFamily:"'Outfit',sans-serif",fontSize:12,color:C.white2,lineHeight:1.6}}>
+        Veribas Real Estate LLC is a licensed business broker acting as your <strong style={{color:C.white}}>buyer's agent (client representation)</strong>. The seller is represented as a customer under limited agency.
+      </div>
+      <div style={{marginTop:8,padding:"8px 10px",background:"rgba(59,130,246,0.1)",borderRadius:6,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <span style={{fontFamily:"'Outfit',sans-serif",fontSize:11,color:C.white2,fontWeight:600}}>Buyer Broker Fee (5%)</span>
+        <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:14,fontWeight:700,color:C.blue}}>{fee ? "$"+fee.toLocaleString() : "5% of purchase price"}</span>
+      </div>
+      {fee && <div style={{fontFamily:"'Outfit',sans-serif",fontSize:11,color:C.muted,marginTop:4}}>Total buyer cost: ${(Number(String(offerPrice).replace(/[^0-9]/g,""))+fee).toLocaleString()} · Fee due at closing</div>}
+    </div>
+  )
+}
+
 function LOIForm({d, user, onSubmit, existingLOI}) {
   const [form, setForm] = useState({entity:"",offerPrice:"",structure:"Asset Purchase",equity:"",financing:"SBA 7(a)",ddPeriod:"45 days",earnout:"None",conditions:"",thesis:""})
   const [done, setDone] = useState(!!existingLOI)
@@ -494,6 +511,7 @@ function LOIForm({d, user, onSubmit, existingLOI}) {
       <div style={{background:`${C.blue}12`,border:`1px solid ${C.blue}30`,borderRadius:8,padding:"10px 14px",marginBottom:16,fontFamily:"'Outfit',sans-serif",fontSize:12,color:C.blue}}>
         📋 This LOI is non-binding and subject to due diligence. All terms are indicative and for discussion purposes only.
       </div>
+      <BrokerDisclosure offerPrice={form.offerPrice}/>
       {fld("Buyer Entity / Fund Name","entity","Patel Capital Partners LLC")}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {fld("Proposed Purchase Price ($)","offerPrice","e.g. 1,700,000")}
